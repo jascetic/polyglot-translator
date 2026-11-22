@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Polyglot Translator</title>
+<meta name="description" content="Free document translator. Translate PDF, Word, text files, screenshots and typed text between 120 languages. No sign-up.">
+<meta property="og:title" content="Polyglot Translator">
+<meta property="og:description" content="Free document translator. Translate PDF, Word, text files, screenshots and typed text between 120 languages. No sign-up.">
+<meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://jascetic.github.io/polyglot-translator/">
+<meta property="og:url" content="https://jascetic.github.io/polyglot-translator/">
+<meta property="og:type" content="website">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231550d8'/%3E%3Cpath d='M15 13h9.5a2 2 0 0 1 2 2v6.2a2 2 0 0 1-2 2H23v3.3l-3.8-3.3H15a2 2 0 0 1-2-2V15a2 2 0 0 1 2-2z' fill='%238fb0ff'/%3E%3Cpath d='M7.5 6.5h10a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2h-5.2l-3.8 3.3V17h-1a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* VOICE   work: a formal, company-grade translation product, calm and exact
+   IDEA    a bilingual edition: source on the left page, translation on the facing page
+   PICTURE the working translator itself, full width under a modest title
+   COLOUR  pure white ground, ink #0b1324, one sober blue #1550d8, hairlines, a quiet grey facing page
+   TYPE    Inter Tight 600 for titles + Inter for text
+   LAYOUT  top bar; title row; translator panel; features, languages, privacy bands; footer. Phone: panes stack */
+:root{color-scheme:light;--bg:#ffffff;--ink:#0b1324;--muted:#566074;--faint:#8b94a5;--line:#e4e7ed;--line2:#d3d8e0;--sunk:#f6f7f9;--blue:#1550d8;--blue-d:#0e3fb3;--blue-s:#edf2ff;--danger:#b42318;--danger-s:#fef3f2;--ok:#067647;--f-d:"Inter Tight","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--f:"Inter",system-ui,-apple-system,"Segoe UI","Noto Sans",sans-serif}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:84px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+html,body{background:var(--bg);color:var(--ink)}
+body{margin:0;font:16px/1.55 var(--f);overflow-x:clip;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.in{width:min(1240px,100%);margin-inline:auto;padding-left:max(20px,3vw,env(safe-area-inset-left,0px));padding-right:max(20px,3vw,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.nav{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav .in{height:64px;display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex:none}
+.brand svg{width:30px;height:30px;flex:none}
+.brand b{font:700 18px/1 var(--f-d);letter-spacing:-.01em}
+.brand span{font:500 18px/1 var(--f-d);color:var(--muted)}
+.links{display:flex;gap:2px;flex:1}
+.links a{color:var(--muted);text-decoration:none;font-size:15px;font-weight:500;padding:8px 12px;border-radius:8px}
+.links a:hover{color:var(--ink);background:var(--sunk)}
+.nav .btn{margin-left:auto}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line2);background:#fff;color:var(--ink);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+.btn:hover{background:var(--sunk);border-color:#c3c9d3}
+.btn:disabled{opacity:.5;cursor:not-allowed;background:#fff}
+.btn svg{width:16px;height:16px;flex:none}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.ghost:hover{background:#eceef2;color:var(--ink)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;min-height:44px;padding:0 26px;font-size:15px}
+.btn.primary:hover{background:var(--blue-d);border-color:var(--blue-d)}
+.btn.primary:disabled{background:#c9d0db;border-color:#c9d0db;color:#fff;opacity:1}
+
+/* title row */
+.intro{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px 48px;align-items:end;padding-top:clamp(28px,4vw,52px);padding-bottom:24px}
+h1{font:600 clamp(30px,3.6vw,44px)/1.08 var(--f-d);letter-spacing:-.02em;margin:0;text-wrap:balance}
+.lede{margin:0;color:var(--muted);font-size:17px;max-width:52ch}
+
+/* translator panel */
+.panel{border:1px solid var(--line2);border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(11,19,36,.04),0 10px 28px -16px rgba(11,19,36,.18)}
+.langbar{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-bottom:1px solid var(--line)}
+.langbar .picker+.picker{background:var(--sunk);border-left:1px solid var(--line);border-radius:0 16px 0 0}
+.picker{position:relative}
+.picker-btn{width:100%;display:flex;align-items:center;gap:8px;min-height:58px;padding:0 44px 0 24px;border:0;background:none;cursor:pointer;text-align:left;font-size:16px;font-weight:600;border-radius:16px 0 0 0}
+#pickTo .picker-btn{padding:0 24px 0 44px;border-radius:0 16px 0 0}
+.picker-btn:hover{background:rgba(11,19,36,.035)}
+.picker-btn .val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none;max-width:70%}
+.picker-btn .nat{font-weight:400;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picker-btn .chev{margin-left:auto;flex:none;width:16px;height:16px;color:var(--muted)}
+.swap{position:absolute;z-index:2;left:50%;top:50%;translate:-50% -50%;width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:#fff;display:grid;place-items:center;cursor:pointer;color:var(--ink);box-shadow:0 1px 2px rgba(11,19,36,.06)}
+.swap svg{width:18px;height:18px}
+.swap:hover{border-color:var(--blue);color:var(--blue)}
+.swap:disabled{color:var(--faint);cursor:not-allowed;border-color:var(--line)}
+.pop{position:absolute;z-index:50;top:calc(100% + 4px);left:8px;width:min(380px,calc(100vw - 32px));background:#fff;border:1px solid var(--line2);border-radius:12px;box-shadow:0 18px 40px -14px rgba(11,19,36,.28);overflow:hidden}
+#pickTo .pop{left:auto;right:8px}
+.pop input{width:100%;border:0;border-bottom:1px solid var(--line);font:inherit;font-size:16px;padding:14px 16px;outline:none;background:#fff;color:var(--ink)}
+.pop ul{list-style:none;margin:0;padding:6px;max-height:340px;overflow:auto}
+.pop li{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:15px}
+.pop li .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pop li .nat{color:var(--muted);margin-left:8px}
+.pop li .cd{color:var(--faint);font-size:12px;flex:none}
+.pop li[aria-selected=true],.pop li:hover{background:var(--blue-s)}
+.pop .none{padding:12px;color:var(--muted);cursor:default}
+.pop .none:hover{background:none}
+
+.desk{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.pane{display:flex;flex-direction:column;min-height:390px}
+.pane.dst{background:var(--sunk);border-left:1px solid var(--line)}
+.src-body{position:relative;flex:1;display:flex;flex-direction:column}
+textarea#src{flex:1;width:100%;min-height:290px;resize:none;border:0;background:transparent;color:var(--ink);font:400 19px/1.6 var(--f);padding:22px 24px;outline:none}
+textarea#src::placeholder{color:var(--faint)}
+.from-note{margin:18px 24px -10px;font-size:13px;color:var(--muted)}
+.from-note b{color:var(--ink);font-weight:600}
+.out{flex:1;padding:22px 24px;font:400 19px/1.6 var(--f);white-space:pre-wrap;overflow-wrap:anywhere;min-height:290px}
+.out.placeholder{color:#465063}
+.pane-foot{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:8px 14px 12px;min-height:56px}
+.count{margin-left:auto;font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.status{flex:1;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);min-width:180px;padding-left:10px}
+.status.err{color:var(--danger)}
+.bar{flex:1;max-width:160px;height:4px;background:#e1e5ec;border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .3s}
+.dots::after{content:"";animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.drop{position:absolute;inset:10px;border:2px dashed var(--blue);border-radius:12px;background:rgba(237,242,255,.95);display:grid;place-items:center;font-weight:600;color:var(--blue);pointer-events:none}
+
+.actionbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding:14px 16px 14px 24px;border-top:1px solid var(--line)}
+.engine{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.engine i{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.engine b{color:var(--ink);font-weight:600}
+.go{display:flex;align-items:center;gap:10px}
+.kh{font-size:13px;color:var(--faint);white-space:nowrap}
+kbd{font:500 12px/1 var(--f);border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:2px 5px;background:#fff;color:var(--muted)}
+
+/* sections */
+.band{padding-block:clamp(52px,6vw,92px)}
+.band.alt{background:var(--sunk);border-block:1px solid var(--line);margin-top:clamp(52px,6vw,88px)}
+h2{font:600 clamp(26px,2.8vw,34px)/1.1 var(--f-d);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h3{font:600 19px/1.25 var(--f-d);margin:0;letter-spacing:-.01em}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 48px;align-items:end;margin-bottom:36px}
+.sec-head p{margin:0;color:var(--muted);font-size:17px;max-width:54ch}
+.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.feat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.feat .art{height:132px;border-radius:10px;background:var(--sunk);margin-bottom:6px}
+.feat .art svg{display:block;width:100%;height:100%}
+.feat p{margin:0;color:var(--muted);font-size:15.5px}
+.points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 32px;margin-top:40px;padding-top:32px;border-top:1px solid var(--line2)}
+.points h3{font-size:16px;margin-bottom:6px}
+.points p{margin:0;color:var(--muted);font-size:15px}
+
+.lang-tools{display:flex;gap:12px 20px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.search{position:relative;flex:1;max-width:440px}
+.search input{width:100%;min-height:46px;border:1px solid var(--line2);border-radius:10px;padding:0 14px 0 42px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.search input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-s)}
+.search svg{position:absolute;left:14px;top:50%;translate:0 -50%;width:18px;height:18px;color:var(--faint)}
+.lang-meta{font-size:14px;color:var(--muted)}
+.lang-box{border:1px solid var(--line2);border-radius:14px;max-height:452px;overflow:auto;padding:8px;background:#fff}
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px}
+.lang{display:flex;align-items:baseline;gap:8px;width:100%;text-align:left;border:0;background:none;border-radius:8px;padding:11px 12px;cursor:pointer;min-height:44px}
+.lang:hover{background:var(--sunk)}
+.lang .ln{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none;max-width:62%}
+.lang .lnat{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang[aria-current=true]{background:var(--blue-s)}
+.lang[aria-current=true] .ln{color:var(--blue)}
+.empty{grid-column:1/-1;padding:20px 12px;color:var(--muted);margin:0}
+
+.priv{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr);gap:32px 72px}
+.priv>div>p{color:var(--muted);font-size:17px;margin:14px 0 0;max-width:40ch}
+.priv-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 36px}
+.priv-list h3{font-size:16px;margin:14px 0 6px}
+.priv-list p{margin:0;color:var(--muted);font-size:15px}
+.ico{width:42px;height:42px;border-radius:10px;background:var(--blue-s);color:var(--blue);display:grid;place-items:center}
+.ico svg{width:20px;height:20px}
+
+footer{border-top:1px solid var(--line);padding-block:32px 40px}
+footer .in{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between}
+footer nav{display:flex;flex-wrap:wrap;gap:6px 22px}
+footer a{color:var(--muted);text-decoration:none;font-size:14px}
+footer a:hover{color:var(--ink)}
+.fine{color:var(--faint);font-size:13px;width:100%;margin:0}
+.fine a{font-size:13px;color:var(--muted);text-decoration:underline}
+
+@media (max-width:900px){
+  .links{display:none}
+  .intro,.sec-head,.priv{grid-template-columns:minmax(0,1fr)}
+  .feats,.points{grid-template-columns:minmax(0,1fr)}
+  .feat{display:grid;grid-template-columns:180px minmax(0,1fr);column-gap:20px;align-items:start}
+  .feat .art{grid-row:1/3;height:120px;margin:0}
+}
+@media (max-width:720px){
+  .desk{grid-template-columns:minmax(0,1fr)}
+  .pane.dst{border-left:0;border-top:1px solid var(--line)}
+  .pane{min-height:0}
+  textarea#src,.out{min-height:170px;font-size:17px;padding:16px}
+  .from-note{margin:14px 16px -8px}
+  .langbar .picker+.picker{background:none}
+  .picker-btn{padding:0 36px 0 16px;min-height:54px}
+  #pickTo .picker-btn{padding:0 16px 0 36px}
+  .picker-btn .nat,.picker-btn .long{display:none}
+  .picker-btn .val{max-width:none;flex:1}
+  .actionbar{padding:12px}
+  .go{width:100%}
+  .go .btn.primary{flex:1}
+  .kh{display:none}
+  .priv-list{grid-template-columns:minmax(0,1fr)}
+  .feat{display:flex}
+  .feat .art{height:120px}
+}
+@media (max-width:420px){.brand span{display:none}}
+@media (prefers-reduced-motion:reduce){.dots::after{animation:none;content:"..."}.bar i{transition:none}.btn{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="in">
+    <a class="brand" href="#translate" aria-label="Polyglot Translator">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1550d8"/><path d="M15 13h9.5a2 2 0 0 1 2 2v6.2a2 2 0 0 1-2 2H23v3.3l-3.8-3.3H15a2 2 0 0 1-2-2V15a2 2 0 0 1 2-2z" fill="#8fb0ff"/><path d="M7.5 6.5h10a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2h-5.2l-3.8 3.3V17h-1a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2z" fill="#fff"/></svg>
+      <b>Polyglot</b><span>Translator</span>
+    </a>
+    <nav class="links" aria-label="Sections">
+      <a href="#translate">Translator</a>
+      <a href="#features">Features</a>
+      <a href="#languages">Languages</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+    <button class="btn" id="navUpload" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>Upload document</button>
+  </div>
+</header>
+
+<main>
+  <section class="in" id="translate" aria-label="Translator">
+    <div class="intro">
+      <h1>Translate documents, text and screenshots</h1>
+      <p class="lede">Free translation between <span id="langCount">120</span> languages, with no account and no sign-up. PDF and Word files are opened right in your browser.</p>
+    </div>
+
+    <div class="panel">
+      <div class="langbar">
+        <div class="picker" id="pickFrom"></div>
+        <button class="swap" id="swap" type="button" title="Swap languages" aria-label="Swap languages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4M20 16H5M9 12l-4 4 4 4"/></svg></button>
+        <div class="picker" id="pickTo"></div>
+      </div>
+
+      <div class="desk">
+        <section class="pane src" aria-label="Source text">
+          <div class="src-body" id="srcBody">
+            <textarea id="src" spellcheck="false" aria-label="Text to translate" placeholder="Type or paste text, paste a screenshot with Ctrl/⌘ + V, or drop a PDF or Word file here."></textarea>
+            <div class="drop" id="drop" hidden>Drop files to add them</div>
+          </div>
+          <div class="pane-foot">
+            <button class="btn ghost" id="uploadBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5l-8.3 8.3a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"/></svg>Attach file</button>
+            <button class="btn ghost" id="clearBtn" type="button">Clear</button>
+            <span class="count" id="charCount"></span>
+            <input type="file" id="fileIn" hidden multiple accept=".txt,.md,.csv,.tsv,.srt,.vtt,.json,.xml,.html,.htm,.rtf,.log,.pdf,.docx,image/png,image/jpeg,image/webp,image/gif,image/bmp">
+          </div>
+        </section>
+
+        <section class="pane dst" aria-label="Translation">
+          <p class="from-note" id="outTitle" hidden></p>
+          <div class="out" id="out" aria-live="polite"></div>
+          <div class="pane-foot">
+            <div class="status" id="status"></div>
+            <button class="btn ghost" id="copyBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h9"/></svg><span>Copy</span></button>
+            <button class="btn ghost" id="dlBtn" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg>Download .txt</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="actionbar">
+        <div class="engine" id="engine"><i></i><span></span></div>
+        <div class="go">
+          <span class="kh"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+          <button class="btn" id="stopBtn" type="button" hidden>Stop</button>
+          <button class="btn primary" id="goBtn" type="button">Translate</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="features">
+    <div class="in">
+      <div class="sec-head">
+        <h2>Everything you need to read, in one place</h2>
+        <p>Type it, paste a screenshot of it, or upload the file. Polyglot reads it in your browser, keeps its line layout, and translates it into the language you choose.</p>
+      </div>
+      <div class="feats">
+        <article class="feat">
+          <div class="art"><svg viewBox="0 0 240 132" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <rect x="34" y="26" width="72" height="80" rx="8" fill="#fff" stroke="#d3d8e0"/>
+            <rect x="46" y="42" width="46" height="5" rx="2.5" fill="#0b1324"/><rect x="46" y="55" width="40" height="5" rx="2.5" fill="#c3c9d3"/><rect x="46" y="67" width="44" height="5" rx="2.5" fill="#c3c9d3"/><rect x="46" y="79" width="30" height="5" rx="2.5" fill="#c3c9d3"/>
+            <path d="M113 66h14m-5-5 5 5-5 5" stroke="#1550d8" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="134" y="26" width="72" height="80" rx="8" fill="#fff" stroke="#1550d8" stroke-width="1.5"/>
+            <rect x="146" y="42" width="40" height="5" rx="2.5" fill="#1550d8"/><rect x="146" y="55" width="46" height="5" rx="2.5" fill="#b9cbfb"/><rect x="146" y="67" width="36" height="5" rx="2.5" fill="#b9cbfb"/><rect x="146" y="79" width="42" height="5" rx="2.5" fill="#b9cbfb"/>
+          </svg></div>
+          <h3>Text of any length</h3>
+          <p>From a single sentence to a long report. Text is translated line by line and sentence by sentence, so headings, lists and paragraphs stay in place.</p>
+        </article>
+        <article class="feat">
+          <div class="art"><svg viewBox="0 0 240 132" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <rect x="90" y="14" width="60" height="104" rx="11" fill="#fff" stroke="#0b1324" stroke-width="2"/>
+            <rect x="111" y="21" width="18" height="4" rx="2" fill="#0b1324"/>
+            <rect x="101" y="36" width="30" height="5" rx="2.5" fill="#0b1324"/>
+            <rect x="101" y="50" width="38" height="4" rx="2" fill="#c3c9d3"/><rect x="101" y="60" width="34" height="4" rx="2" fill="#c3c9d3"/><rect x="101" y="70" width="38" height="4" rx="2" fill="#c3c9d3"/><rect x="101" y="80" width="26" height="4" rx="2" fill="#c3c9d3"/>
+            <rect x="101" y="94" width="38" height="14" rx="4" fill="#edf2ff"/>
+            <path d="M80 40v-8h8M160 40v-8h-8M80 92v8h8M160 92v8h-8" stroke="#1550d8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <rect x="84" y="63" width="72" height="2.5" rx="1.25" fill="#1550d8"/>
+          </svg></div>
+          <h3>Screenshots and scans</h3>
+          <p>Paste a screenshot with <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>V</kbd> or upload an image or scanned PDF. The text is read on your device, placed in the box for you to check, then translated.</p>
+        </article>
+        <article class="feat">
+          <div class="art"><svg viewBox="0 0 240 132" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <rect x="80" y="22" width="64" height="88" rx="6" fill="#fff" stroke="#d3d8e0" transform="rotate(-9 112 66)"/>
+            <rect x="96" y="22" width="64" height="88" rx="6" fill="#fff" stroke="#d3d8e0" transform="rotate(7 128 66)"/>
+            <path d="M92 18h40l20 20v72a4 4 0 0 1-4 4H92a4 4 0 0 1-4-4V22a4 4 0 0 1 4-4z" fill="#fff" stroke="#0b1324" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M132 18v16a4 4 0 0 0 4 4h16" fill="#f6f7f9" stroke="#0b1324" stroke-width="2" stroke-linejoin="round"/>
+            <rect x="98" y="44" width="36" height="5" rx="2.5" fill="#0b1324"/><rect x="98" y="56" width="44" height="4" rx="2" fill="#c3c9d3"/><rect x="98" y="66" width="40" height="4" rx="2" fill="#c3c9d3"/><rect x="98" y="76" width="44" height="4" rx="2" fill="#c3c9d3"/>
+            <rect x="98" y="90" width="30" height="15" rx="4" fill="#1550d8"/>
+            <text x="113" y="101" fill="#fff" font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="700" text-anchor="middle">PDF</text>
+          </svg></div>
+          <h3>Documents and files</h3>
+          <p>PDF, Word (.docx), TXT, Markdown, CSV, SRT and VTT subtitles, JSON, XML and HTML. Download the result as a text file or copy it in one click.</p>
+        </article>
+      </div>
+      <div class="points">
+        <div><h3>Free, no account</h3><p>Open the page and translate. There is nothing to install and nothing to sign up for.</p></div>
+        <div><h3>Unlimited in Chrome</h3><p>On a computer with Chrome, most common languages are translated on your own device with no daily limit.</p></div>
+        <div><h3>Automatic detection</h3><p>Leave the source on Detect language. The language it was written in is named above the translation.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="languages">
+    <div class="in">
+      <div class="sec-head">
+        <h2><span id="langCount2">120</span> languages</h2>
+        <p>Choose a language below to translate into it. The most widely spoken languages give the best results; rarer languages may come back less polished.</p>
+      </div>
+      <div class="lang-tools">
+        <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="langSearch" type="search" placeholder="Search languages" aria-label="Search languages" autocomplete="off"></label>
+        <span class="lang-meta" id="langMeta"></span>
+      </div>
+      <div class="lang-box"><div class="lang-grid" id="langGrid"></div></div>
+    </div>
+  </section>
+
+  <section class="band alt" id="privacy">
+    <div class="in priv">
+      <div>
+        <h2>How your content is handled</h2>
+        <p>Polyglot is a single web page with no accounts and no database. Here is exactly what happens to what you translate.</p>
+      </div>
+      <div class="priv-list">
+        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></span><h3>Files open on your device</h3><p>PDF, Word and image files are read inside your browser. The files themselves are never uploaded anywhere.</p></div>
+        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>Who translates it</h3><p>In Chrome on a computer, supported languages are translated on your device and the text stays there. Otherwise the text is sent to <a href="https://mymemory.translated.net/" rel="noopener">MyMemory</a>, a free translation service, which allows about 5,000 characters a day per connection.</p></div>
+        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></span><h3>Nothing kept</h3><p>The page remembers only your target language and today's character count, in your own browser. Your text is not saved.</p></div>
+        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14l2 2 4-4"/></svg></span><h3>Check what matters</h3><p>Machine translation can make mistakes. Have legal, medical or official documents checked by a qualified translator before you rely on them.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="in">
+    <a class="brand" href="#translate" aria-label="Polyglot Translator, back to top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1550d8"/><path d="M15 13h9.5a2 2 0 0 1 2 2v6.2a2 2 0 0 1-2 2H23v3.3l-3.8-3.3H15a2 2 0 0 1-2-2V15a2 2 0 0 1 2-2z" fill="#8fb0ff"/><path d="M7.5 6.5h10a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2h-5.2l-3.8 3.3V17h-1a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2z" fill="#fff"/></svg>
+      <b>Polyglot</b><span>Translator</span>
+    </a>
+    <nav aria-label="Footer">
+      <a href="#translate">Translator</a>
+      <a href="#features">Features</a>
+      <a href="#languages">Languages</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+    <p class="fine">© 2026 Polyglot Translator. Translation by Chrome's built-in translator or <a href="https://mymemory.translated.net/" rel="noopener">MyMemory</a>. Text recognition by Tesseract.js. Machine translation can contain mistakes.</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+
+/* ---------- Languages: code | English name | native name ---------- */
+const RAW = `af|Afrikaans|Afrikaans;ak|Akan (Twi)|Akan;sq|Albanian|Shqip;am|Amharic|አማርኛ;ar|Arabic|العربية;hy|Armenian|Հայերեն;as|Assamese|অসমীয়া;ay|Aymara|Aymar aru;az|Azerbaijani|Azərbaycanca;bm|Bambara|Bamanankan;eu|Basque|Euskara;be|Belarusian|Беларуская;bn|Bengali|বাংলা;bho|Bhojpuri|भोजपुरी;bs|Bosnian|Bosanski;bg|Bulgarian|Български;my|Burmese|မြန်မာ;ca|Catalan|Català;ceb|Cebuano|Sinugbuanong Binisayâ;ny|Chichewa|Chicheŵa;zh-CN|Chinese (Simplified)|简体中文;zh-TW|Chinese (Traditional)|繁體中文;co|Corsican|Corsu;hr|Croatian|Hrvatski;cs|Czech|Čeština;da|Danish|Dansk;dv|Dhivehi|ދިވެހި;nl|Dutch|Nederlands;en|English|English;eo|Esperanto|Esperanto;et|Estonian|Eesti;ee|Ewe|Eʋegbe;fil|Filipino (Tagalog)|Filipino;fi|Finnish|Suomi;fr|French|Français;fy|Frisian|Frysk;gl|Galician|Galego;lg|Ganda|Luganda;ka|Georgian|ქართული;de|German|Deutsch;el|Greek|Ελληνικά;gn|Guarani|Avañe'ẽ;gu|Gujarati|ગુજરાતી;ht|Haitian Creole|Kreyòl ayisyen;ha|Hausa|Hausa;haw|Hawaiian|ʻŌlelo Hawaiʻi;he|Hebrew|עברית;hi|Hindi|हिन्दी;hmn|Hmong|Hmoob;hu|Hungarian|Magyar;is|Icelandic|Íslenska;ig|Igbo|Igbo;ilo|Ilocano|Ilokano;id|Indonesian|Bahasa Indonesia;ga|Irish|Gaeilge;it|Italian|Italiano;ja|Japanese|日本語;jv|Javanese|Basa Jawa;kn|Kannada|ಕನ್ನಡ;kk|Kazakh|Қазақ тілі;km|Khmer|ខ្មែរ;rw|Kinyarwanda|Ikinyarwanda;ko|Korean|한국어;ku|Kurdish (Kurmanji)|Kurmancî;ckb|Kurdish (Sorani)|کوردیی ناوەندی;ky|Kyrgyz|Кыргызча;lo|Lao|ລາວ;la|Latin|Latina;lv|Latvian|Latviešu;ln|Lingala|Lingála;lt|Lithuanian|Lietuvių;lb|Luxembourgish|Lëtzebuergesch;mk|Macedonian|Македонски;mai|Maithili|मैथिली;mg|Malagasy|Malagasy;ms|Malay|Bahasa Melayu;ml|Malayalam|മലയാളം;mt|Maltese|Malti;mi|Māori|Te Reo Māori;mr|Marathi|मराठी;mn|Mongolian|Монгол;ne|Nepali|नेपाली;no|Norwegian|Norsk;or|Odia|ଓଡ଼ିଆ;om|Oromo|Afaan Oromoo;ps|Pashto|پښتو;fa|Persian|فارسی;pl|Polish|Polski;pt-BR|Portuguese (Brazil)|Português do Brasil;pt-PT|Portuguese (Portugal)|Português europeu;pa|Punjabi|ਪੰਜਾਬੀ;qu|Quechua|Runa Simi;ro|Romanian|Română;ru|Russian|Русский;sm|Samoan|Gagana Sāmoa;sa|Sanskrit|संस्कृतम्;gd|Scottish Gaelic|Gàidhlig;sr|Serbian|Српски;st|Sesotho|Sesotho;tn|Setswana|Setswana;sn|Shona|chiShona;sd|Sindhi|سنڌي;si|Sinhala|සිංහල;sk|Slovak|Slovenčina;sl|Slovenian|Slovenščina;so|Somali|Soomaali;es|Spanish|Español;su|Sundanese|Basa Sunda;sw|Swahili|Kiswahili;sv|Swedish|Svenska;tg|Tajik|Тоҷикӣ;ta|Tamil|தமிழ்;tt|Tatar|Татар;te|Telugu|తెలుగు;th|Thai|ไทย;ti|Tigrinya|ትግርኛ;ts|Tsonga|Xitsonga;tr|Turkish|Türkçe;tk|Turkmen|Türkmençe;uk|Ukrainian|Українська;ur|Urdu|اردو;ug|Uyghur|ئۇيغۇرچە;uz|Uzbek|Oʻzbekcha;vi|Vietnamese|Tiếng Việt;cy|Welsh|Cymraeg;xh|Xhosa|isiXhosa;yi|Yiddish|ייִדיש;yo|Yoruba|Yorùbá;zu|Zulu|isiZulu`;
+const LANGS = RAW.split(";").map(r => { const [code,name,native] = r.split("|"); return {code,name,native}; });
+const AUTO = {code:"auto", name:"Detect language", native:""};
+const byCode = c => LANGS.find(l => l.code === c);
+const base = c => String(c).split("-")[0].toLowerCase();
+const DN = (() => { try { return new Intl.DisplayNames(["en"], {type:"language"}); } catch { return null; } })();
+const dname = c => { try { return DN?.of(c) || c; } catch { return c; } };
+function fromDetected(c){
+  c = String(c).toLowerCase();
+  if (c.startsWith("zh")) return byCode(/hant|tw|hk|mo/.test(c) ? "zh-TW" : "zh-CN");
+  if (c === "iw") return byCode("he");
+  if (c === "tl") return byCode("fil");
+  if (c.startsWith("pt")) return {code:"pt", name:"Portuguese", native:""};
+  return byCode(c) || LANGS.find(l => base(l.code) === base(c)) || {code:c, name:dname(c), native:""};
+}
+$("#langCount").textContent = LANGS.length;
+$("#langCount2").textContent = LANGS.length;
+
+/* ---------- State ---------- */
+const store = { get(k){ try{return localStorage.getItem(k)}catch{return null} }, set(k,v){ try{localStorage.setItem(k,v)}catch{} } };
+let from = AUTO;
+let to = byCode(store.get("pgw.to")) || byCode("en");
+let lastSrc = null, ctl = null, busy = false, lastTranslation = "", docName = "";
+const hasChrome = "Translator" in self, hasDetector = "LanguageDetector" in self;
+
+function updCount(){ const n = $("#src").value.length; $("#charCount").textContent = n ? n.toLocaleString() + (n === 1 ? " character" : " characters") : ""; }
+
+/* ---------- Free allowance (MyMemory, about 5,000 characters a day) ---------- */
+const MM_DAY = 5000;
+const today = () => new Date().toISOString().slice(0,10);
+function mmUsed(){ try { const o = JSON.parse(store.get("pgw.mm") || "null"); return o && o.d === today() ? o.n : 0; } catch { return 0; } }
+function mmAdd(n){ store.set("pgw.mm", JSON.stringify({d:today(), n:mmUsed() + n})); }
+const mmLeft = () => Math.max(0, MM_DAY - mmUsed());
+function showEngine(kind){
+  const e = $("#engine span"), dot = $("#engine i");
+  if (kind === "device"){ e.innerHTML = "<b>On-device translation</b> in Chrome for supported languages, no daily limit"; dot.style.background = "var(--ok)"; return; }
+  const left = mmLeft();
+  e.innerHTML = `<b>Free translation</b> by MyMemory · about ${left.toLocaleString()} characters left today`;
+  dot.style.background = left < 500 ? "var(--danger)" : "var(--ok)";
+}
+showEngine(hasChrome ? "device" : "mm");
+
+/* ---------- Language picker ---------- */
+function makePicker(root, getter, setter, allowAuto, label){
+  root.innerHTML = "";
+  const btn = document.createElement("button");
+  btn.type = "button"; btn.className = "picker-btn"; btn.setAttribute("aria-haspopup","listbox"); btn.setAttribute("aria-expanded","false");
+  root.append(btn);
+  const render = () => {
+    const l = getter();
+    btn.setAttribute("aria-label", label + ": " + l.name);
+    const nat = l.native && l.native !== l.name ? `<span class="nat">${esc(l.native)}</span>` : "";
+    const name = l.code === "auto" ? 'Detect<span class="long"> language</span>' : esc(l.name);
+    btn.innerHTML = `<span class="val">${name}</span>${nat}${CHEV}`;
+  };
+  let pop = null, active = 0, items = [];
+  const close = () => { pop?.remove(); pop = null; btn.setAttribute("aria-expanded","false"); };
+  const choose = l => { setter(l); render(); close(); btn.focus(); syncSwap(); };
+  const open = () => {
+    if (pop) return close();
+    pop = document.createElement("div"); pop.className = "pop";
+    const inp = document.createElement("input"); inp.placeholder = "Search languages"; inp.setAttribute("aria-label","Search languages");
+    const ul = document.createElement("ul"); ul.setAttribute("role","listbox"); ul.setAttribute("aria-label", label + " language");
+    pop.append(inp, ul); root.append(pop); btn.setAttribute("aria-expanded","true");
+    const draw = () => {
+      const q = inp.value.trim().toLowerCase();
+      const pool = (allowAuto ? [AUTO] : []).concat(LANGS);
+      items = q ? pool.filter(l => (l.name+" "+l.native+" "+l.code).toLowerCase().includes(q)) : pool;
+      active = Math.min(active, Math.max(0, items.length-1));
+      ul.innerHTML = items.length ? "" : '<li class="none">No matching language</li>';
+      items.forEach((l,i) => {
+        const li = document.createElement("li"); li.setAttribute("role","option");
+        li.setAttribute("aria-selected", i===active ? "true":"false");
+        li.innerHTML = `<span class="n">${esc(l.name)}${l.native && l.native!==l.name ? `<span class="nat">${esc(l.native)}</span>` : ""}</span><span class="cd">${l.code==="auto" ? "" : esc(l.code)}</span>`;
+        li.addEventListener("mousedown", e => { e.preventDefault(); choose(l); });
+        ul.append(li);
+      });
+    };
+    inp.addEventListener("input", () => { active = 0; draw(); });
+    inp.addEventListener("keydown", e => {
+      if (e.key==="ArrowDown"){ active=Math.min(items.length-1,active+1); draw(); ul.children[active]?.scrollIntoView({block:"nearest"}); e.preventDefault(); }
+      else if (e.key==="ArrowUp"){ active=Math.max(0,active-1); draw(); ul.children[active]?.scrollIntoView({block:"nearest"}); e.preventDefault(); }
+      else if (e.key==="Enter"){ if(items[active]) choose(items[active]); e.preventDefault(); }
+      else if (e.key==="Escape"){ close(); btn.focus(); }
+    });
+    inp.addEventListener("blur", () => setTimeout(close, 120));
+    draw(); inp.focus();
+  };
+  btn.addEventListener("click", open);
+  render();
+  return { render };
+}
+function setTo(l){ to = l; if (byCode(l.code)) store.set("pgw.to", l.code); renderLangs(); }
+const pFrom = makePicker($("#pickFrom"), () => from, l => { from = l; }, true, "Translate from");
+const pTo = makePicker($("#pickTo"), () => to, setTo, false, "Translate into");
+function syncSwap(){ $("#swap").disabled = from.code === "auto" && !lastSrc; }
+syncSwap();
+$("#swap").addEventListener("click", () => {
+  const src = from.code === "auto" ? lastSrc : from;
+  if (!src) return;
+  from = to; setTo(byCode(src.code) || src); pFrom.render(); pTo.render(); syncSwap();
+  if (lastTranslation){ $("#src").value = lastTranslation; updCount(); }
+});
+
+/* ---------- Language directory ---------- */
+function renderLangs(){
+  const raw = $("#langSearch").value.trim(), q = raw.toLowerCase();
+  const list = q ? LANGS.filter(l => (l.name+" "+l.native+" "+l.code).toLowerCase().includes(q)) : LANGS;
+  $("#langGrid").innerHTML = list.map(l => `<button type="button" class="lang" data-c="${esc(l.code)}" aria-current="${l.code===to.code}"><span class="ln">${esc(l.name)}</span><span class="lnat">${l.native!==l.name ? esc(l.native) : ""}</span></button>`).join("")
+    || `<p class="empty">No language matches “${esc(raw)}”.</p>`;
+  $("#langMeta").textContent = q ? `${list.length} of ${LANGS.length} languages` : `Translating into ${to.name}`;
+}
+$("#langSearch").addEventListener("input", renderLangs);
+$("#langGrid").addEventListener("click", e => {
+  const b = e.target.closest(".lang"); if (!b) return;
+  const l = byCode(b.dataset.c); setTo(l); pTo.render();
+  $("#translate").scrollIntoView({block:"start"});
+  setStatus(`Now translating into ${l.name}.`);
+});
+renderLangs();
+
+/* ---------- Language detection ---------- */
+const STOP = {
+  en:"the and of to is in that it for with you are this was on be have not",
+  es:"el la de que y en los se del las por un una es con para no",
+  fr:"le la les de des et est un une que pour dans en du au pas il",
+  de:"der die das und ist nicht ein eine zu den mit von sich auf für ich",
+  pt:"o a os as de que e do da em um uma para com não é se",
+  it:"il la di che e un una per con non sono del della è gli",
+  nl:"de het een en van is dat niet op te zijn voor met ik",
+  sv:"och att det som är en på för med inte jag av till",
+  da:"og at det er en på for med ikke jeg af til som den",
+  no:"og at det er en på for med ikke jeg av til som",
+  fi:"ja on ei se että hän oli mutta kun tai ovat myös",
+  pl:"i w nie na się z że do to jest jak o ale",
+  cs:"a v je se na že to s z do o jako ale",
+  tr:"ve bir bu da de için ile ne olarak çok daha gibi",
+  id:"dan yang di ini itu dengan untuk tidak dari ke ada akan",
+  sw:"na ya wa kwa ni za katika la hii kama lakini sana",
+  ro:"și în de la este că o un nu cu pe pentru",
+  hu:"a az és hogy nem egy is van meg ez de",
+  vi:"và của là có không cho được những một này với các",
+  fil:"ang ng sa na mga at ay ito hindi ko si",
+};
+const STOPSETS = Object.fromEntries(Object.entries(STOP).map(([k,v]) => [k, new Set(v.split(" "))]));
+const SCRIPT = {cjk:/[\u3040-\u30ff\u4e00-\u9fff]/g, kana:/[\u3040-\u30ff]/g, hangul:/[\uac00-\ud7af]/g, arabic:/[\u0600-\u06ff]/g, cyr:/[\u0400-\u04ff]/g, greek:/[\u0370-\u03ff]/g, hebrew:/[\u0590-\u05ff]/g, deva:/[\u0900-\u097f]/g, beng:/[\u0980-\u09ff]/g, guru:/[\u0a00-\u0a7f]/g, guj:/[\u0a80-\u0aff]/g, tamil:/[\u0b80-\u0bff]/g, telugu:/[\u0c00-\u0c7f]/g, kannada:/[\u0c80-\u0cff]/g, malay:/[\u0d00-\u0d7f]/g, sinh:/[\u0d80-\u0dff]/g, thai:/[\u0e00-\u0e7f]/g, lao:/[\u0e80-\u0eff]/g, myan:/[\u1000-\u109f]/g, khmer:/[\u1780-\u17ff]/g, geo:/[\u10a0-\u10ff]/g, arm:/[\u0530-\u058f]/g, eth:/[\u1200-\u137f]/g, latin:/[a-z\u00e0-\u00ff\u0101\u0103\u0105\u0107\u010d\u010f\u0111\u0113\u0119\u011b\u011f\u012b\u0131\u0142\u0144\u0148\u014d\u0151\u0153\u0159\u015b\u015f\u0161\u0163\u0165\u016b\u016f\u0171\u017a\u017c\u017e]/gi};
+const SCRIPT_LANG = {hangul:"ko", greek:"el", hebrew:"he", deva:"hi", beng:"bn", guru:"pa", guj:"gu", tamil:"ta", telugu:"te", kannada:"kn", malay:"ml", sinh:"si", thai:"th", lao:"lo", myan:"my", khmer:"km", geo:"ka", arm:"hy", eth:"am"};
+function guess(s){
+  const n = re => (s.match(re) || []).length;
+  let best = null, bc = 0;
+  for (const k of Object.keys(SCRIPT)){ if (k === "kana") continue; const c = n(SCRIPT[k]); if (c > bc){ bc = c; best = k; } }
+  if (!best || bc < 2) return null;
+  if (best === "cjk") return n(SCRIPT.kana) > bc * 0.05 ? "ja" : "zh-CN";
+  if (best === "arabic") return /[ٹڈڑںے]/.test(s) ? "ur" : /[پچژگ]/.test(s) ? "fa" : "ar";
+  if (best === "cyr") return /[їєґ]/i.test(s) ? "uk" : "ru";
+  if (best !== "latin") return SCRIPT_LANG[best];
+  if ((s.match(/[ạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹđ]/gi) || []).length > 2) return "vi";
+  const words = s.toLowerCase().match(/[\p{L}']+/gu) || [];
+  const scores = Object.entries(STOPSETS).map(([k,set]) => [k, words.reduce((a,w) => a + (set.has(w) ? 1 : 0), 0)]).sort((a,b) => b[1]-a[1]);
+  return scores[0][1] >= 3 && scores[0][1] > scores[1][1] * 1.15 ? scores[0][0] : null;
+}
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no({code:"timeout"}), ms))]);
+let detector = null;
+async function detect(text){
+  const sample = text.slice(0, 3000);
+  if (hasDetector){
+    try {
+      if (!detector && await withTimeout(LanguageDetector.availability(), 2500) === "available") detector = await withTimeout(LanguageDetector.create(), 4000);
+      if (detector){
+        const r = await withTimeout(detector.detect(sample), 4000);
+        if (r[0] && r[0].detectedLanguage !== "und" && r[0].confidence > 0.5) return r[0].detectedLanguage;
+      }
+    } catch {}
+  }
+  return guess(sample);
+}
+
+/* ---------- Translation engines ---------- */
+const chCode = c => ({"zh-CN":"zh","zh-TW":"zh-Hant","pt-BR":"pt","pt-PT":"pt"})[c] || c;
+const mmCode = c => c === "fil" ? "tl" : c;
+const translators = new Map();
+async function deviceTranslator(src, tgt){
+  if (!hasChrome) return null;
+  const opts = {sourceLanguage: chCode(src), targetLanguage: chCode(tgt)};
+  const key = opts.sourceLanguage + ">" + opts.targetLanguage;
+  if (translators.has(key)) return translators.get(key);
+  let a; try { a = await withTimeout(Translator.availability(opts), 2500); } catch { return null; }
+  if (a !== "available" && a !== "downloadable" && a !== "downloading") return null;
+  // A language pack may need downloading. Give up and use the online service if it stalls.
+  const stop = new AbortController(); let timer;
+  const arm = ms => { clearTimeout(timer); timer = setTimeout(() => stop.abort(), ms); };
+  arm(a === "available" ? 8000 : 12000);
+  try {
+    const t = await Translator.create({...opts, signal: stop.signal, monitor(m){ m.addEventListener("downloadprogress", e => { arm(20000); setProgress("Downloading the language pack to your device", e.loaded > 1 ? e.loaded / (e.total || 1) : e.loaded); }); }});
+    translators.set(key, t);
+    return t;
+  } catch (e){
+    if (e?.name === "NotAllowedError") throw e;
+    return null;
+  } finally { clearTimeout(timer); }
+}
+const decode = s => { const t = document.createElement("textarea"); t.innerHTML = s; return t.value; };
+async function mmTranslate(text, src, tgt, signal){
+  const url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=" + encodeURIComponent(mmCode(src) + "|" + mmCode(tgt));
+  let r;
+  try { r = await fetch(url, {signal}); } catch { throw {code: signal.aborted ? "cancelled" : "network"}; }
+  if (r.status === 429) throw {code:"quota"};
+  let j; try { j = await r.json(); } catch { throw {code:"api"}; }
+  const st = +j.responseStatus, out = String(j.responseData?.translatedText ?? ""), det = String(j.responseDetails || "");
+  if (st === 429 || /MYMEMORY WARNING|ALL AVAILABLE FREE/i.test(out + det)) throw {code:"quota"};
+  if (st !== 200 || /INVALID (SOURCE|TARGET) LANGUAGE|IS AN INVALID|LIMIT EXCEEDED|DISTINCT LANGUAGES/i.test(out)) throw {code:"api", detail: det || out};
+  mmAdd(text.length);
+  return decode(out);
+}
+
+/* ---------- Splitting text into pieces that keep the layout ---------- */
+const enc = new TextEncoder();
+const bytes = s => enc.encode(s).length;
+const KEEP = /^[\s\d\p{P}\p{S}]*$/u;
+function splitLong(s, max){
+  if (bytes(s) <= max) return [s];
+  const sentences = s.match(/[^.!?。！？]*[.!?。！？]+["'”’)\]]*\s*|[^.!?。！？]+$/g) || [s];
+  const pieces = [];
+  for (const se of sentences){
+    if (bytes(se) <= max){ pieces.push(se); continue; }
+    let cur = "";
+    for (const w of se.split(/(?<=\s)/)){
+      if (bytes(w) > max){ if (cur){ pieces.push(cur); cur = ""; } let c = ""; for (const ch of w){ if (bytes(c + ch) > max){ pieces.push(c); c = ""; } c += ch; } cur = c; continue; }
+      if (bytes(cur + w) > max){ pieces.push(cur); cur = ""; }
+      cur += w;
+    }
+    if (cur) pieces.push(cur);
+  }
+  const out = []; let cur = "";
+  for (const p of pieces){ if (cur && bytes(cur + p) > max){ out.push(cur); cur = ""; } cur += p; }
+  if (cur) out.push(cur);
+  return out;
+}
+function units(text, max){
+  const u = [];
+  for (const ln of text.split(/(\r?\n)/)){
+    if (KEEP.test(ln)){ u.push({t:ln, keep:true}); continue; }
+    const lead = ln.match(/^\s*/)[0], trail = ln.match(/\s*$/)[0];
+    if (lead) u.push({t:lead, keep:true});
+    for (const p of splitLong(ln.slice(lead.length, ln.length - trail.length), max)){
+      const sp = (p.match(/\s+$/) || [""])[0], core = p.slice(0, p.length - sp.length);
+      if (core) u.push(KEEP.test(core) ? {t:core, keep:true} : {t:core});
+      if (sp) u.push({t:sp, keep:true});
+    }
+    if (trail) u.push({t:trail, keep:true});
+  }
+  return u;
+}
+function prefix(res){ let s = ""; for (const r of res){ if (r === null) break; s += r; } return s; }
+async function runUnits(us, fn, conc, signal, onUpdate){
+  const res = us.map(u => u.keep ? u.t : null);
+  const todo = []; us.forEach((u,i) => { if (!u.keep) todo.push(i); });
+  let next = 0, done = 0, err = null;
+  const worker = async () => {
+    while (next < todo.length && !err){
+      if (signal.aborted){ err = {code:"cancelled"}; return; }
+      const i = todo[next++];
+      try { res[i] = await fn(us[i].t); }
+      catch (e){ err = err || e; return; }
+      done++; onUpdate(res, done / todo.length);
+    }
+  };
+  await Promise.all(Array.from({length: Math.max(1, Math.min(conc, todo.length))}, worker));
+  return {res, err};
+}
+
+/* ---------- Translate ---------- */
+const ERR = {
+  nodetect: "Couldn't tell which language this is. Choose it in the From menu, then press Translate again.",
+  activation: "Chrome needs to download a language pack first. Press Translate once more to start it.",
+  quota: "Today's free allowance on this connection is used up. What was translated so far is shown. Try again tomorrow, or use Chrome on a computer for unlimited translation.",
+  network: "Couldn't reach the translation service. Check your internet connection and try again.",
+  api: "The translation service couldn't translate between these two languages. Try another language pair.",
+  cancelled: "Stopped.",
+};
+async function translate(){
+  if (busy) return;
+  const text = $("#src").value;
+  if (!text.trim()){ setStatus("Type, paste or upload something to translate first.", false, true); $("#src").focus(); return; }
+  busy = true; ctl = new AbortController(); const signal = ctl.signal;
+  $("#goBtn").disabled = true; $("#stopBtn").hidden = false; $("#dlBtn").hidden = true;
+  const out = $("#out"); out.classList.remove("placeholder"); out.textContent = ""; showDetected(null);
+  let partial = "";
+  try {
+    let src = from;
+    if (from.code === "auto"){
+      setStatus("Detecting the language", true);
+      const d = await detect(text);
+      if (!d) throw {code:"nodetect"};
+      src = fromDetected(d);
+    }
+    lastSrc = src; syncSwap();
+    showDetected(from.code === "auto" ? src.name : null);
+    out.textContent = "";
+    if (base(src.code) === base(to.code) && !(base(src.code) === "zh" && src.code !== to.code)){
+      out.textContent = partial = text; lastTranslation = text;
+      setStatus(`This text is already in ${to.name}.`);
+      return;
+    }
+    let dev = null;
+    try { dev = await deviceTranslator(src.code, to.code); }
+    catch (e){ if (e?.name === "NotAllowedError") throw {code:"activation"}; dev = null; }
+    let engine = dev ? "device" : "mm";
+    const us = units(text, 450);
+    const need = us.reduce((a,u) => a + (u.keep ? 0 : u.t.length), 0);
+    const fn = async t => {
+      if (engine === "device"){
+        try { return await withTimeout(dev.translate(t, {signal}), 20000); }
+        catch (e){ if (signal.aborted) throw {code:"cancelled"}; engine = "mm"; translators.clear(); }
+      }
+      return mmTranslate(t, src.code, to.code, signal);
+    };
+    const label = dev ? "Translating on your device" : "Translating";
+    setProgress(label, 0);
+    const {res, err} = await runUnits(us, fn, dev ? 1 : 3, signal, (r, f) => { out.textContent = prefix(r); setProgress(engine === "device" ? label : "Translating", f); });
+    partial = prefix(res); out.textContent = partial;
+    showEngine(engine);
+    if (err) throw err;
+    lastTranslation = partial;
+    setStatus(`Done · ${need.toLocaleString()} characters translated into ${to.name}`);
+    $("#dlBtn").hidden = false;
+  } catch (e){
+    lastTranslation = partial;
+    if (partial) $("#dlBtn").hidden = false;
+    const msg = ERR[e?.code] || (e?.name === "AbortError" ? ERR.cancelled : "Translation was interrupted. Press Translate to try again.");
+    setStatus(msg, false, e?.code !== "cancelled" && e?.name !== "AbortError");
+    if (e?.code !== "cancelled") console.warn(e);
+  } finally {
+    busy = false; ctl = null; $("#goBtn").disabled = false; $("#stopBtn").hidden = true;
+    if (!hasChrome) showEngine("mm");
+  }
+}
+$("#goBtn").addEventListener("click", translate);
+$("#stopBtn").addEventListener("click", () => ctl?.abort());
+document.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter"){ e.preventDefault(); translate(); } });
+
+/* ---------- Reading files ---------- */
+let tessP = null;
+function loadTesseract(){
+  return tessP ||= new Promise((ok, no) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+    s.onload = () => ok(window.Tesseract); s.onerror = () => { tessP = null; no(new Error("ocr-load")); };
+    document.head.append(s);
+  });
+}
+const OCR = {en:"eng",es:"spa",fr:"fra",de:"deu",pt:"por",it:"ita",nl:"nld",sv:"swe",da:"dan",no:"nor",fi:"fin",pl:"pol",cs:"ces",sk:"slk",sl:"slv",hr:"hrv",sr:"srp",bs:"bos",ro:"ron",hu:"hun",tr:"tur",el:"ell",ru:"rus",uk:"ukr",be:"bel",bg:"bul",mk:"mkd",ar:"ara",fa:"fas",ur:"urd",he:"heb",hi:"hin",mr:"mar",ne:"nep",bn:"ben",pa:"pan",gu:"guj",ta:"tam",te:"tel",kn:"kan",ml:"mal",si:"sin",th:"tha",lo:"lao",km:"khm",my:"mya",vi:"vie",id:"ind",ms:"msa",fil:"tgl",sw:"swa",af:"afr",sq:"sqi",et:"est",lv:"lav",lt:"lit",is:"isl",ga:"gle",cy:"cym",eu:"eus",ca:"cat",gl:"glg",ka:"kat",hy:"hye",am:"amh",ja:"jpn",ko:"kor",kk:"kaz",uz:"uzb",az:"aze","zh-CN":"chi_sim","zh-TW":"chi_tra"};
+async function ocr(blobs, name){
+  const T = await loadTesseract();
+  const lang = OCR[from.code] || OCR[base(from.code)] || "eng";
+  let page = 1;
+  setStatus("Preparing the text reader", true);
+  const w = await T.createWorker(lang, 1, {logger: m => { if (m.status === "recognizing text") setProgress(`Reading text from ${name}` + (blobs.length > 1 ? ` · page ${page} of ${blobs.length}` : ""), m.progress); }});
+  const parts = [];
+  try { for (const b of blobs){ const {data} = await w.recognize(b); parts.push(data.text.trim()); page++; } }
+  finally { await w.terminate(); }
+  return parts.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+const unwrap = t => t.replace(/([^\n.!?:;。！？"”)])\n(?=\p{Ll})/gu, "$1 ");
+async function readPdf(file){
+  const pdf = await pdfjsLib.getDocument({data: new Uint8Array(await file.arrayBuffer())}).promise;
+  let text = "";
+  for (let p = 1; p <= pdf.numPages; p++){
+    setStatus(`Reading ${file.name}: page ${p} of ${pdf.numPages}`, true);
+    const tc = await (await pdf.getPage(p)).getTextContent();
+    let line = "", lastY = null; const out = [];
+    for (const it of tc.items){
+      const y = it.transform ? it.transform[5] : null;
+      if (lastY !== null && y !== null && Math.abs(y - lastY) > 2){ out.push(line); line = ""; }
+      line += it.str; if (it.hasEOL){ out.push(line); line = ""; }
+      lastY = y;
+    }
+    out.push(line);
+    text += out.join("\n").replace(/\n{3,}/g, "\n\n").trim() + (p < pdf.numPages ? "\n\n" : "");
+  }
+  if (text.replace(/\s/g,"").length > 20 * Math.min(pdf.numPages, 3)) return {text: unwrap(text), pages: pdf.numPages};
+  const max = Math.min(pdf.numPages, 20), blobs = [];
+  for (let p = 1; p <= max; p++){
+    setStatus(`Preparing scanned page ${p} of ${max}`, true);
+    const page = await pdf.getPage(p), vp = page.getViewport({scale: 2});
+    const cv = document.createElement("canvas"); cv.width = vp.width; cv.height = vp.height;
+    await page.render({canvasContext: cv.getContext("2d"), viewport: vp}).promise;
+    blobs.push(await new Promise(r => cv.toBlob(r, "image/png")));
+  }
+  return {blobs, pages: pdf.numPages, scanned: max};
+}
+function appendText(t){
+  const ta = $("#src");
+  if ($("#out").classList.contains("placeholder")){ ta.value = ""; $("#out").textContent = ""; showDetected(null); $("#out").classList.remove("placeholder"); }
+  ta.value = ta.value.trim() ? ta.value.replace(/\s+$/,"") + "\n\n" + t : t;
+  updCount();
+}
+const TEXT_EXT = /\.(txt|md|csv|tsv|srt|vtt|json|xml|rtf|log)$/i;
+async function addFiles(files){
+  for (const f of files){
+    try {
+      if (/^image\//.test(f.type)){
+        const t = await ocr([f], f.name);
+        if (t){ appendText(t); setStatus(`Text read from ${f.name}. Check it, then press Translate.`); }
+        else setStatus(`No readable text was found in ${f.name}.`, false, true);
+        continue;
+      }
+      docName = f.name.replace(/\.[^.]+$/, "");
+      if (/\.pdf$/i.test(f.name) || f.type === "application/pdf"){
+        if (!window.pdfjsLib){ setStatus("The PDF reader did not load. Reload the page and try again.", false, true); continue; }
+        const r = await readPdf(f);
+        if (r.text){ appendText(r.text); setStatus(`Loaded ${f.name} · ${r.pages} page${r.pages > 1 ? "s" : ""}. Press Translate.`); }
+        else {
+          const t = await ocr(r.blobs, f.name);
+          if (t){ appendText(t); setStatus(`Text read from ${r.scanned} scanned page${r.scanned > 1 ? "s" : ""}${r.pages > r.scanned ? ` of ${r.pages}` : ""}. Check it, then press Translate.`); }
+          else setStatus(`No readable text was found in ${f.name}.`, false, true);
+        }
+      } else if (/\.docx$/i.test(f.name)){
+        if (!window.mammoth){ setStatus("The Word reader did not load. Reload the page and try again.", false, true); continue; }
+        const r = await mammoth.extractRawText({arrayBuffer: await f.arrayBuffer()});
+        appendText(r.value.replace(/\n{3,}/g, "\n\n").trim()); setStatus(`Loaded ${f.name}. Press Translate.`);
+      } else if (/\.html?$/i.test(f.name)){
+        const d = new DOMParser().parseFromString(await f.text(), "text/html");
+        appendText((d.body?.innerText || d.body?.textContent || "").trim()); setStatus(`Loaded ${f.name}. Press Translate.`);
+      } else if (TEXT_EXT.test(f.name) || /^text\//.test(f.type)){
+        appendText((await f.text()).trim()); setStatus(`Loaded ${f.name}. Press Translate.`);
+      } else if (/\.doc$/i.test(f.name)){
+        setStatus(`${f.name}: old .doc files can't be read. Save it as .docx or PDF and upload it again.`, false, true);
+      } else {
+        setStatus(`${f.name}: this file type isn't supported. Try PDF, .docx, .txt or an image.`, false, true);
+      }
+    } catch (e){
+      console.error(e);
+      setStatus(e?.message === "ocr-load" ? "The text reader couldn't load. Check your connection and try again." : `Couldn't read ${f.name}. The file may be damaged or password-protected.`, false, true);
+    }
+  }
+}
+$("#uploadBtn").addEventListener("click", () => $("#fileIn").click());
+$("#navUpload").addEventListener("click", () => $("#fileIn").click());
+$("#fileIn").addEventListener("change", e => { const fs = [...e.target.files]; e.target.value = ""; $("#translate").scrollIntoView({block:"start"}); addFiles(fs); });
+$("#clearBtn").addEventListener("click", () => { $("#src").value = ""; $("#out").textContent = ""; $("#out").classList.remove("placeholder"); showDetected(null); docName = ""; lastTranslation = ""; $("#dlBtn").hidden = true; setStatus(""); updCount(); $("#src").focus(); });
+$("#src").addEventListener("input", updCount);
+document.addEventListener("paste", e => {
+  const files = [...(e.clipboardData?.files || [])].filter(f => /^image\//.test(f.type));
+  if (files.length){ e.preventDefault(); addFiles(files); }
+});
+const srcBody = $("#srcBody"); let dragDepth = 0;
+const hasFiles = e => [...(e.dataTransfer?.types || [])].includes("Files");
+["dragenter","dragover"].forEach(t => document.addEventListener(t, e => { if (hasFiles(e)) e.preventDefault(); }));
+srcBody.addEventListener("dragenter", e => { if (hasFiles(e)){ dragDepth++; $("#drop").hidden = false; } });
+srcBody.addEventListener("dragleave", () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) $("#drop").hidden = true; });
+document.addEventListener("drop", e => { e.preventDefault(); dragDepth = 0; $("#drop").hidden = true; if (e.dataTransfer?.files?.length) addFiles([...e.dataTransfer.files]); });
+
+/* ---------- Output helpers ---------- */
+function setStatus(msg, busyDots, err){
+  const s = $("#status"); s.innerHTML = ""; s.classList.toggle("err", !!err);
+  if (!msg) return;
+  const t = document.createElement("span"); t.textContent = msg; if (busyDots) t.className = "dots"; s.append(t);
+}
+function setProgress(msg, frac){
+  const s = $("#status"); s.classList.remove("err"); s.innerHTML = "";
+  const t = document.createElement("span"); t.textContent = msg; t.className = "dots";
+  const b = document.createElement("div"); b.className = "bar"; const i = document.createElement("i"); i.style.width = Math.round(Math.min(1, frac || 0) * 100) + "%"; b.append(i);
+  s.append(t, b);
+}
+function showDetected(name){
+  const h = $("#outTitle");
+  if (!name){ h.hidden = true; return; }
+  h.innerHTML = ""; h.append("Translated from "); const b = document.createElement("b"); b.textContent = name; h.append(b); h.hidden = false;
+}
+$("#copyBtn").addEventListener("click", async () => {
+  const t = $("#out").textContent, lbl = $("#copyBtn span"); if (!t) return;
+  try { await navigator.clipboard.writeText(t); lbl.textContent = "Copied"; }
+  catch { const r = document.createRange(); r.selectNodeContents($("#out")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); lbl.textContent = "Selected, press Ctrl+C"; }
+  setTimeout(() => lbl.textContent = "Copy", 1800);
+});
+$("#dlBtn").addEventListener("click", () => {
+  const slug = to.code.replace(/[^\w-]+/g, "-");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["\ufeff" + $("#out").textContent], {type:"text/plain;charset=utf-8"}));
+  a.download = (docName || "translation") + "-" + slug + ".txt";
+  document.body.append(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+});
+
+/* ---------- Example ---------- */
+if (window.pdfjsLib){ try { pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; } catch {} }
+$("#src").value = "Habari za asubuhi! Mkutano wa wazazi utafanyika Jumamosi saa tatu asubuhi katika ukumbi wa shule. Tafadhali leteni ripoti za wanafunzi na kalamu.\n\nAsanteni sana.";
+$("#out").textContent = "Good morning! The parents' meeting will be held on Saturday at 9 a.m. in the school hall. Please bring the students' reports and a pen.\n\nThank you very much.";
+$("#out").classList.add("placeholder");
+updCount();
+showDetected("Swahili");
+setStatus("Example shown. Replace it with your own text, screenshot or document.");
+})();
+</script>
+</body>
+</html>
