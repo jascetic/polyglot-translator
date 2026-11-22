@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Polyglot Translator</title>
-<meta name="description" content="Free document translator. Translate PDF, Word, text files, screenshots and typed text between 120 languages. No sign-up.">
+<meta name="description" content="Free document translator. Translate PDF, Word, text files, screenshots and typed text between 129 languages, with the layout of the original kept. No sign-up.">
 <meta property="og:title" content="Polyglot Translator">
-<meta property="og:description" content="Free document translator. Translate PDF, Word, text files, screenshots and typed text between 120 languages. No sign-up.">
+<meta property="og:description" content="Free document translator. Translate PDF, Word, text files, screenshots and typed text between 129 languages, with the layout of the original kept. No sign-up.">
 <meta name="theme-color" content="#ffffff">
 <link rel="canonical" href="https://jascetic.github.io/polyglot-translator/">
 <meta property="og:url" content="https://jascetic.github.io/polyglot-translator/">
@@ -118,6 +118,23 @@ textarea#src::placeholder{color:var(--faint)}
 .kh{font-size:13px;color:var(--faint);white-space:nowrap}
 kbd{font:500 12px/1 var(--f);border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:2px 5px;background:#fff;color:var(--muted)}
 
+/* a file, original beside translation */
+.doc-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px 10px 24px;border-bottom:1px solid var(--line)}
+.doc-name{flex:1 1 200px;font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#docDownload:not(:disabled){background:var(--blue);border-color:var(--blue);color:#fff}
+.doc-side h3{font:500 13px/1 var(--f);color:var(--muted);letter-spacing:0;padding:14px 20px 0}
+.doc-pages{height:min(70vh,820px);min-height:340px;overflow:auto;padding:14px 20px 20px}
+.doc-pages canvas{display:block;max-width:100%;height:auto;margin:0 auto 14px;border:1px solid var(--line)}
+.doc-pages iframe{display:block;width:100%;height:100%;border:0}
+.doc-empty{height:100%;margin:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:15px}
+.doc-status{display:flex;padding:10px 14px;border-top:1px solid var(--line)}
+.doc-editor{border-top:1px solid var(--line);padding:16px 20px}
+.doc-editor>p{margin:0 0 12px;font-size:14px;color:var(--muted)}
+.doc-fields{max-height:380px;overflow:auto;margin-bottom:12px}
+.doc-field{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 18px;padding:8px 0;border-bottom:1px solid var(--line)}
+.doc-field span{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.doc-field textarea{font:15px/1.45 var(--f);color:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;resize:vertical}
+
 /* sections */
 .band{padding-block:clamp(52px,6vw,92px)}
 .band.alt{background:var(--sunk);border-block:1px solid var(--line);margin-top:clamp(52px,6vw,88px)}
@@ -188,6 +205,8 @@ footer a:hover{color:var(--ink)}
   .go{width:100%}
   .go .btn.primary{flex:1}
   .kh{display:none}
+  .doc-pages{height:52vh;min-height:240px;padding:12px}
+  .doc-field{grid-template-columns:minmax(0,1fr)}
   .priv-list{grid-template-columns:minmax(0,1fr)}
   .feat{display:flex}
   .feat .art{height:120px}
@@ -218,7 +237,7 @@ footer a:hover{color:var(--ink)}
   <section class="in" id="translate" aria-label="Translator">
     <div class="intro">
       <h1>Translate documents, text and screenshots</h1>
-      <p class="lede">Free translation between <span id="langCount">120</span> languages, with no account and no sign-up. PDF and Word files are opened right in your browser.</p>
+      <p class="lede">Free translation between <span id="langCount">129</span> languages, with no account and no sign-up. PDFs, Word files and pictures come back looking like the original, in the new language.</p>
     </div>
 
     <div class="panel">
@@ -228,7 +247,7 @@ footer a:hover{color:var(--ink)}
         <div class="picker" id="pickTo"></div>
       </div>
 
-      <div class="desk">
+      <div class="desk" id="textView">
         <section class="pane src" aria-label="Source text">
           <div class="src-body" id="srcBody">
             <textarea id="src" spellcheck="false" aria-label="Text to translate" placeholder="Type or paste text, paste a screenshot with Ctrl/⌘ + V, or drop a PDF or Word file here."></textarea>
@@ -253,6 +272,25 @@ footer a:hover{color:var(--ink)}
         </section>
       </div>
 
+      <div id="docView" hidden>
+        <div class="doc-bar">
+          <span class="doc-name" id="docName"></span>
+          <button class="btn ghost" id="docEdit" type="button" aria-expanded="false" aria-controls="docEditor" hidden>Edit wording</button>
+          <button class="btn" id="docDownload" type="button" disabled>Download translated file</button>
+          <button class="btn ghost" id="docClose" type="button">Close file</button>
+        </div>
+        <div class="desk">
+          <section class="doc-side" aria-label="Original file"><h3>Original</h3><div class="doc-pages" id="docBefore"></div></section>
+          <section class="doc-side pane dst" aria-label="Translated file"><h3>Translation</h3><div class="doc-pages" id="docAfter"></div></section>
+        </div>
+        <div class="doc-editor" id="docEditor" hidden>
+          <p>Change any translation, or clear a box to keep the original words.</p>
+          <div class="doc-fields" id="docFields"></div>
+          <button class="btn" id="docApply" type="button">Apply changes</button>
+        </div>
+        <div class="doc-status"><div class="status" id="docStatus" role="status"></div></div>
+      </div>
+
       <div class="actionbar">
         <div class="engine" id="engine"><i></i><span></span></div>
         <div class="go">
@@ -268,7 +306,7 @@ footer a:hover{color:var(--ink)}
     <div class="in">
       <div class="sec-head">
         <h2>Everything you need to read, in one place</h2>
-        <p>Type it, paste a screenshot of it, or upload the file. Polyglot reads it in your browser, keeps its line layout, and translates it into the language you choose.</p>
+        <p>Type it, paste a screenshot of it, or upload the file. Polyglot reads it in your browser and puts the language you choose where the original words were.</p>
       </div>
       <div class="feats">
         <article class="feat">
@@ -293,7 +331,7 @@ footer a:hover{color:var(--ink)}
             <rect x="84" y="63" width="72" height="2.5" rx="1.25" fill="#1550d8"/>
           </svg></div>
           <h3>Screenshots and scans</h3>
-          <p>Paste a screenshot with <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>V</kbd> or upload an image or scanned PDF. The text is read on your device, placed in the box for you to check, then translated.</p>
+          <p>Paste a screenshot with <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>V</kbd> or upload an image or scanned PDF. The words are replaced inside the picture, matching their size, color and angle.</p>
         </article>
         <article class="feat">
           <div class="art"><svg viewBox="0 0 240 132" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -306,7 +344,7 @@ footer a:hover{color:var(--ink)}
             <text x="113" y="101" fill="#fff" font-family="Inter,system-ui,sans-serif" font-size="9" font-weight="700" text-anchor="middle">PDF</text>
           </svg></div>
           <h3>Documents and files</h3>
-          <p>PDF, Word (.docx), TXT, Markdown, CSV, SRT and VTT subtitles, JSON, XML and HTML. Download the result as a text file or copy it in one click.</p>
+          <p>PDF and Word files keep their layout, logos, stamps and tables, and download in the same format. TXT, Markdown, CSV, subtitles, JSON, XML and HTML are translated as text.</p>
         </article>
       </div>
       <div class="points">
@@ -320,7 +358,7 @@ footer a:hover{color:var(--ink)}
   <section class="band" id="languages">
     <div class="in">
       <div class="sec-head">
-        <h2><span id="langCount2">120</span> languages</h2>
+        <h2><span id="langCount2">129</span> languages</h2>
         <p>Choose a language below to translate into it. The most widely spoken languages give the best results; rarer languages may come back less polished.</p>
       </div>
       <div class="lang-tools">
@@ -338,7 +376,7 @@ footer a:hover{color:var(--ink)}
         <p>Polyglot is a single web page with no accounts and no database. Here is exactly what happens to what you translate.</p>
       </div>
       <div class="priv-list">
-        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></span><h3>Files open on your device</h3><p>PDF, Word and image files are read inside your browser. The files themselves are never uploaded anywhere.</p></div>
+        <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></span><h3>Files open on your device</h3><p>PDF, Word and image files are read and rebuilt inside your browser. The files themselves are never uploaded anywhere.</p></div>
         <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>Who translates it</h3><p>In Chrome on a computer, supported languages are translated on your device and the text stays there. Otherwise the text is sent to <a href="https://mymemory.translated.net/" rel="noopener">MyMemory</a>, a free translation service, which allows about 5,000 characters a day per connection.</p></div>
         <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></span><h3>Nothing kept</h3><p>The page remembers only your target language and today's character count, in your own browser. Your text is not saved.</p></div>
         <div><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14l2 2 4-4"/></svg></span><h3>Check what matters</h3><p>Machine translation can make mistakes. Have legal, medical or official documents checked by a qualified translator before you rely on them.</p></div>
@@ -364,7 +402,12 @@ footer a:hover{color:var(--ink)}
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/pdf-content.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/picture.js"></script>
+<script src="js/docx.js"></script>
+<script src="js/workspace.js"></script>
 <script>
 (() => {
 "use strict";
@@ -474,7 +517,7 @@ $("#swap").addEventListener("click", () => {
   const src = from.code === "auto" ? lastSrc : from;
   if (!src) return;
   from = to; setTo(byCode(src.code) || src); pFrom.render(); pTo.render(); syncSwap();
-  if (lastTranslation){ $("#src").value = lastTranslation; updCount(); }
+  if (lastTranslation && !files_.active()){ $("#src").value = lastTranslation; updCount(); }
 });
 
 /* ---------- Language directory ---------- */
@@ -496,7 +539,7 @@ renderLangs();
 
 /* ---------- Language detection ---------- */
 const STOP = {
-  en:"the and of to is in that it for with you are this was on be have not",
+  en:"the and of to is in that it for with you are this was on be have not will your our please by from has an",
   es:"el la de que y en los se del las por un una es con para no",
   fr:"le la les de des et est un une que pour dans en du au pas il",
   de:"der die das und ist nicht ein eine zu den mit von sich auf für ich",
@@ -520,7 +563,7 @@ const STOP = {
 const STOPSETS = Object.fromEntries(Object.entries(STOP).map(([k,v]) => [k, new Set(v.split(" "))]));
 const SCRIPT = {cjk:/[\u3040-\u30ff\u4e00-\u9fff]/g, kana:/[\u3040-\u30ff]/g, hangul:/[\uac00-\ud7af]/g, arabic:/[\u0600-\u06ff]/g, cyr:/[\u0400-\u04ff]/g, greek:/[\u0370-\u03ff]/g, hebrew:/[\u0590-\u05ff]/g, deva:/[\u0900-\u097f]/g, beng:/[\u0980-\u09ff]/g, guru:/[\u0a00-\u0a7f]/g, guj:/[\u0a80-\u0aff]/g, tamil:/[\u0b80-\u0bff]/g, telugu:/[\u0c00-\u0c7f]/g, kannada:/[\u0c80-\u0cff]/g, malay:/[\u0d00-\u0d7f]/g, sinh:/[\u0d80-\u0dff]/g, thai:/[\u0e00-\u0e7f]/g, lao:/[\u0e80-\u0eff]/g, myan:/[\u1000-\u109f]/g, khmer:/[\u1780-\u17ff]/g, geo:/[\u10a0-\u10ff]/g, arm:/[\u0530-\u058f]/g, eth:/[\u1200-\u137f]/g, latin:/[a-z\u00e0-\u00ff\u0101\u0103\u0105\u0107\u010d\u010f\u0111\u0113\u0119\u011b\u011f\u012b\u0131\u0142\u0144\u0148\u014d\u0151\u0153\u0159\u015b\u015f\u0161\u0163\u0165\u016b\u016f\u0171\u017a\u017c\u017e]/gi};
 const SCRIPT_LANG = {hangul:"ko", greek:"el", hebrew:"he", deva:"hi", beng:"bn", guru:"pa", guj:"gu", tamil:"ta", telugu:"te", kannada:"kn", malay:"ml", sinh:"si", thai:"th", lao:"lo", myan:"my", khmer:"km", geo:"ka", arm:"hy", eth:"am"};
-function guess(s){
+function guess(s, min = 3){
   const n = re => (s.match(re) || []).length;
   let best = null, bc = 0;
   for (const k of Object.keys(SCRIPT)){ if (k === "kana") continue; const c = n(SCRIPT[k]); if (c > bc){ bc = c; best = k; } }
@@ -532,7 +575,7 @@ function guess(s){
   if ((s.match(/[ạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹđ]/gi) || []).length > 2) return "vi";
   const words = s.toLowerCase().match(/[\p{L}']+/gu) || [];
   const scores = Object.entries(STOPSETS).map(([k,set]) => [k, words.reduce((a,w) => a + (set.has(w) ? 1 : 0), 0)]).sort((a,b) => b[1]-a[1]);
-  return scores[0][1] >= 3 && scores[0][1] > scores[1][1] * 1.15 ? scores[0][0] : null;
+  return scores[0][1] >= min && scores[0][1] > scores[1][1] * 1.15 ? scores[0][0] : null;
 }
 const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no({code:"timeout"}), ms))]);
 let detector = null;
@@ -655,6 +698,7 @@ const ERR = {
 };
 async function translate(){
   if (busy) return;
+  if (files_.active()) return files_.translate();
   const text = $("#src").value;
   if (!text.trim()){ setStatus("Type, paste or upload something to translate first.", false, true); $("#src").focus(); return; }
   busy = true; ctl = new AbortController(); const signal = ctl.signal;
@@ -714,6 +758,95 @@ $("#goBtn").addEventListener("click", translate);
 $("#stopBtn").addEventListener("click", () => ctl?.abort());
 document.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter"){ e.preventDefault(); translate(); } });
 
+/* ---------- Files translated in place ---------- */
+const files_ = InPlace.workspace({
+  from: () => from.code,
+  to: () => to,
+  errors: ERR,
+  detect,
+  loadTesseract: () => loadTesseract(),
+  ocrLang: c => {
+    if (!c || c === "auto") return null;
+    const code = fromDetected(c).code;
+    return OCR[code] || OCR[base(code)] || null;
+  },
+  status: (...a) => setStatus(...a),
+  progress: (...a) => setProgress(...a),
+  begin(){ ctl = new AbortController(); return ctl.signal; },
+  stop(){ ctl?.abort(); },
+  setBusy(v){ busy = v; $("#goBtn").disabled = v; $("#stopBtn").hidden = !v; },
+  async translator(text, signal){
+    let src = from;
+    if (from.code === "auto"){
+      setStatus("Detecting the language", true);
+      // Files are often a few labels, so accept a single clear clue.
+      const d = await detect(text) || guess(text, 1);
+      if (!d) throw {code:"nodetect"};
+      src = fromDetected(d);
+    }
+    const tgt = to;
+    if (from.code === "auto" && base(src.code) === base(tgt.code)){
+      // Mostly in the target language already, but there may be foreign passages to translate.
+      for (const line of text.split("\n")){
+        const g = guess(line);
+        if (!g || base(g) === base(tgt.code)) continue;
+        if (line.length > 70 || !/[a-z]/i.test(line)){ src = fromDetected(g); break; }
+      }
+    }
+    lastSrc = src; syncSwap();
+    if (base(src.code) === base(tgt.code) && !(base(src.code) === "zh" && src.code !== tgt.code)) return {same:true};
+    let dev = null;
+    try { dev = await deviceTranslator(src.code, tgt.code); }
+    catch (e){ if (e?.name === "NotAllowedError") throw {code:"activation"}; }
+    let engine = dev ? "device" : "mm";
+    const spoken = new Set(text.split("\n").filter(l => l.length > 70).map(l => guess(l)).filter(Boolean));
+    const passageLang = t => {
+      if (from.code !== "auto") return src.code;
+      const family = s => /[\u3040-\u9fff]/.test(s) ? "cjk" : /[\uac00-\ud7af]/.test(s) ? "ko" : /[\u0590-\u05ff]/.test(s) ? "he" : /[\u0600-\u06ff]/.test(s) ? "ar" : /[\u0400-\u04ff]/.test(s) ? "cyr" : /[\u0900-\u097f]/.test(s) ? "deva" : /[\u0370-\u03ff]/.test(s) ? "el" : "latin";
+      let g = guess(t), sure = t.length > 70;
+      if (!g){
+        // A short heading takes the language of the sentences it shares the document with.
+        const ws = t.toLowerCase().match(/[\p{L}']+/gu) || [];
+        const rank = [...spoken].filter(l => STOPSETS[l]).map(l => [l, ws.filter(w => STOPSETS[l].has(w)).length]).sort((a, b) => b[1] - a[1]);
+        if (rank[0]?.[1] && rank[0][1] > (rank[1]?.[1] || 0)){ g = rank[0][0]; sure = true; }
+      }
+      if (!g || base(g) === base(src.code)) return src.code;
+      const f = family(t);
+      // Another alphabet, or a whole sentence clearly in another language.
+      if (f !== mainFamily(family)) return g;
+      return f === "latin" && sure ? g : src.code;
+    };
+    const mainFamily = family => {
+      if (mainFamily.value) return mainFamily.value;
+      const n = new Map();
+      for (const w of text.split(/\s+/)) if (/\p{L}/u.test(w)){ const f = family(w); n.set(f, (n.get(f) || 0) + w.length); }
+      return mainFamily.value = [...n].sort((a, b) => b[1] - a[1])[0]?.[0];
+    };
+    const one = async (t, lang) => {
+      if (signal.aborted) throw {code:"cancelled"};
+      if (engine === "device" && lang === src.code){
+        try { return await withTimeout(dev.translate(t, {signal}), 20000); }
+        catch { if (signal.aborted) throw {code:"cancelled"}; engine = "mm"; translators.clear(); }
+      }
+      return mmTranslate(t, lang, tgt.code, signal);
+    };
+    // Repeated headers and labels use the allowance once, and read the same on every page.
+    const seen = new Map();
+    const tr = t => {
+      if (!seen.has(t)) seen.set(t, (async () => {
+        const lang = passageLang(t);
+        // A bilingual document: passages already in the target language stay as written.
+        if (base(lang) === base(tgt.code) && lang !== src.code) return t;
+        let out = "";
+        for (const u of units(t, 450)) out += u.keep ? u.t : await one(u.t, lang);
+        return out;
+      })());
+      return seen.get(t);
+    };
+    return {tr, concurrency: dev ? 1 : 3, finish: () => showEngine(engine)};
+  },
+});
+
 /* ---------- Reading files ---------- */
 let tessP = null;
 function loadTesseract(){
@@ -725,45 +858,6 @@ function loadTesseract(){
   });
 }
 const OCR = {en:"eng",es:"spa",fr:"fra",de:"deu",pt:"por",it:"ita",nl:"nld",sv:"swe",da:"dan",no:"nor",fi:"fin",pl:"pol",cs:"ces",sk:"slk",sl:"slv",hr:"hrv",sr:"srp",bs:"bos",ro:"ron",hu:"hun",tr:"tur",el:"ell",ru:"rus",uk:"ukr",be:"bel",bg:"bul",mk:"mkd",ar:"ara",fa:"fas",ur:"urd",he:"heb",hi:"hin",mr:"mar",ne:"nep",bn:"ben",pa:"pan",gu:"guj",ta:"tam",te:"tel",kn:"kan",ml:"mal",si:"sin",th:"tha",lo:"lao",km:"khm",my:"mya",vi:"vie",id:"ind",ms:"msa",fil:"tgl",sw:"swa",af:"afr",sq:"sqi",et:"est",lv:"lav",lt:"lit",is:"isl",ga:"gle",cy:"cym",eu:"eus",ca:"cat",gl:"glg",ka:"kat",hy:"hye",am:"amh",ja:"jpn",ko:"kor",kk:"kaz",uz:"uzb",az:"aze","zh-CN":"chi_sim","zh-TW":"chi_tra"};
-async function ocr(blobs, name){
-  const T = await loadTesseract();
-  const lang = OCR[from.code] || OCR[base(from.code)] || "eng";
-  let page = 1;
-  setStatus("Preparing the text reader", true);
-  const w = await T.createWorker(lang, 1, {logger: m => { if (m.status === "recognizing text") setProgress(`Reading text from ${name}` + (blobs.length > 1 ? ` · page ${page} of ${blobs.length}` : ""), m.progress); }});
-  const parts = [];
-  try { for (const b of blobs){ const {data} = await w.recognize(b); parts.push(data.text.trim()); page++; } }
-  finally { await w.terminate(); }
-  return parts.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
-}
-const unwrap = t => t.replace(/([^\n.!?:;。！？"”)])\n(?=\p{Ll})/gu, "$1 ");
-async function readPdf(file){
-  const pdf = await pdfjsLib.getDocument({data: new Uint8Array(await file.arrayBuffer())}).promise;
-  let text = "";
-  for (let p = 1; p <= pdf.numPages; p++){
-    setStatus(`Reading ${file.name}: page ${p} of ${pdf.numPages}`, true);
-    const tc = await (await pdf.getPage(p)).getTextContent();
-    let line = "", lastY = null; const out = [];
-    for (const it of tc.items){
-      const y = it.transform ? it.transform[5] : null;
-      if (lastY !== null && y !== null && Math.abs(y - lastY) > 2){ out.push(line); line = ""; }
-      line += it.str; if (it.hasEOL){ out.push(line); line = ""; }
-      lastY = y;
-    }
-    out.push(line);
-    text += out.join("\n").replace(/\n{3,}/g, "\n\n").trim() + (p < pdf.numPages ? "\n\n" : "");
-  }
-  if (text.replace(/\s/g,"").length > 20 * Math.min(pdf.numPages, 3)) return {text: unwrap(text), pages: pdf.numPages};
-  const max = Math.min(pdf.numPages, 20), blobs = [];
-  for (let p = 1; p <= max; p++){
-    setStatus(`Preparing scanned page ${p} of ${max}`, true);
-    const page = await pdf.getPage(p), vp = page.getViewport({scale: 2});
-    const cv = document.createElement("canvas"); cv.width = vp.width; cv.height = vp.height;
-    await page.render({canvasContext: cv.getContext("2d"), viewport: vp}).promise;
-    blobs.push(await new Promise(r => cv.toBlob(r, "image/png")));
-  }
-  return {blobs, pages: pdf.numPages, scanned: max};
-}
 function appendText(t){
   const ta = $("#src");
   if ($("#out").classList.contains("placeholder")){ ta.value = ""; $("#out").textContent = ""; showDetected(null); $("#out").classList.remove("placeholder"); }
@@ -774,27 +868,14 @@ const TEXT_EXT = /\.(txt|md|csv|tsv|srt|vtt|json|xml|rtf|log)$/i;
 async function addFiles(files){
   for (const f of files){
     try {
-      if (/^image\//.test(f.type)){
-        const t = await ocr([f], f.name);
-        if (t){ appendText(t); setStatus(`Text read from ${f.name}. Check it, then press Translate.`); }
-        else setStatus(`No readable text was found in ${f.name}.`, false, true);
-        continue;
+      if (InPlace.kindOf(f)){
+        if (files.length > 1){ setStatus("PDF, Word and picture files are translated one at a time. Upload them separately.", false, true); return; }
+        await files_.open(f);
+        return;
       }
+      if (files_.active()) files_.close();
       docName = f.name.replace(/\.[^.]+$/, "");
-      if (/\.pdf$/i.test(f.name) || f.type === "application/pdf"){
-        if (!window.pdfjsLib){ setStatus("The PDF reader did not load. Reload the page and try again.", false, true); continue; }
-        const r = await readPdf(f);
-        if (r.text){ appendText(r.text); setStatus(`Loaded ${f.name} · ${r.pages} page${r.pages > 1 ? "s" : ""}. Press Translate.`); }
-        else {
-          const t = await ocr(r.blobs, f.name);
-          if (t){ appendText(t); setStatus(`Text read from ${r.scanned} scanned page${r.scanned > 1 ? "s" : ""}${r.pages > r.scanned ? ` of ${r.pages}` : ""}. Check it, then press Translate.`); }
-          else setStatus(`No readable text was found in ${f.name}.`, false, true);
-        }
-      } else if (/\.docx$/i.test(f.name)){
-        if (!window.mammoth){ setStatus("The Word reader did not load. Reload the page and try again.", false, true); continue; }
-        const r = await mammoth.extractRawText({arrayBuffer: await f.arrayBuffer()});
-        appendText(r.value.replace(/\n{3,}/g, "\n\n").trim()); setStatus(`Loaded ${f.name}. Press Translate.`);
-      } else if (/\.html?$/i.test(f.name)){
+      if (/\.html?$/i.test(f.name)){
         const d = new DOMParser().parseFromString(await f.text(), "text/html");
         appendText((d.body?.innerText || d.body?.textContent || "").trim()); setStatus(`Loaded ${f.name}. Press Translate.`);
       } else if (TEXT_EXT.test(f.name) || /^text\//.test(f.type)){
@@ -806,7 +887,7 @@ async function addFiles(files){
       }
     } catch (e){
       console.error(e);
-      setStatus(e?.message === "ocr-load" ? "The text reader couldn't load. Check your connection and try again." : `Couldn't read ${f.name}. The file may be damaged or password-protected.`, false, true);
+      setStatus(`Couldn't read ${f.name}. The file may be damaged or password-protected.`, false, true);
     }
   }
 }
@@ -817,9 +898,9 @@ $("#clearBtn").addEventListener("click", () => { $("#src").value = ""; $("#out")
 $("#src").addEventListener("input", updCount);
 document.addEventListener("paste", e => {
   const files = [...(e.clipboardData?.files || [])].filter(f => /^image\//.test(f.type));
-  if (files.length){ e.preventDefault(); addFiles(files); }
+  if (files.length){ e.preventDefault(); addFiles(files.slice(0, 1)); }
 });
-const srcBody = $("#srcBody"); let dragDepth = 0;
+const srcBody = $(".panel"); let dragDepth = 0;
 const hasFiles = e => [...(e.dataTransfer?.types || [])].includes("Files");
 ["dragenter","dragover"].forEach(t => document.addEventListener(t, e => { if (hasFiles(e)) e.preventDefault(); }));
 srcBody.addEventListener("dragenter", e => { if (hasFiles(e)){ dragDepth++; $("#drop").hidden = false; } });
@@ -827,13 +908,14 @@ srcBody.addEventListener("dragleave", () => { dragDepth = Math.max(0, dragDepth 
 document.addEventListener("drop", e => { e.preventDefault(); dragDepth = 0; $("#drop").hidden = true; if (e.dataTransfer?.files?.length) addFiles([...e.dataTransfer.files]); });
 
 /* ---------- Output helpers ---------- */
+function statusEl(){ return $($("#docView").hidden ? "#status" : "#docStatus"); }
 function setStatus(msg, busyDots, err){
-  const s = $("#status"); s.innerHTML = ""; s.classList.toggle("err", !!err);
+  const s = statusEl(); s.innerHTML = ""; s.classList.toggle("err", !!err);
   if (!msg) return;
   const t = document.createElement("span"); t.textContent = msg; if (busyDots) t.className = "dots"; s.append(t);
 }
 function setProgress(msg, frac){
-  const s = $("#status"); s.classList.remove("err"); s.innerHTML = "";
+  const s = statusEl(); s.classList.remove("err"); s.innerHTML = "";
   const t = document.createElement("span"); t.textContent = msg; t.className = "dots";
   const b = document.createElement("div"); b.className = "bar"; const i = document.createElement("i"); i.style.width = Math.round(Math.min(1, frac || 0) * 100) + "%"; b.append(i);
   s.append(t, b);
